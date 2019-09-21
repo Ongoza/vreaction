@@ -4,7 +4,7 @@ using System.Threading;
 using System.Net.WebSockets;
 using UnityEngine;
 // /home/os/Android/Sdk/platform-tools/adb -s "0123456789ABCDEF" forward "tcp:34999" "localabstract:Unity-com.Ongoza.DianasSportClub"
-public class Connection: MonoBehaviour {
+public class Connection{
     Uri u = new Uri("ws://192.168.1.101:9090/data");
     ClientWebSocket cws = null;
     ArraySegment<byte> buf = new ArraySegment<byte>(new byte[1024]);
