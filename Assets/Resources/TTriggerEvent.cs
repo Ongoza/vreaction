@@ -5,16 +5,16 @@ using UnityEngine;
 public class TriggerEvent : MonoBehaviour
 {
     // Start is called before the first frame update
-    void Start()
-    {
+    // void Start()
+    // {
         
-    }
+    // }
 
-    // Update is called once per frame
-    void Update()
-    {
+    // // Update is called once per frame
+    // void Update()
+    // {
         
-    }
+    // }
 
     void OnCollisionEnter(Collision collisionInfo){
             Debug.Log("Detected collision between " + gameObject.name + " and " + collisionInfo.collider.name);

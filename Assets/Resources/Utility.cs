@@ -14,9 +14,9 @@ public class Utility {
     // message dialog
     public static GameObject ShowMessage(string msg, string action, string actionLabel, Vector2 size, TextAlignmentOptions anchor, Vector2 startLoc, Main main){
         //logDebug("ShowMessage");
-        // TMPro.achor
+        Debug.Log(main.baseLoc);
         GameObject rootObj = new GameObject("rootObj");
-        rootObj.transform.position = new Vector3(0,main.baseLoc,12);
+        rootObj.transform.position = new Vector3(0,main.baseLoc,4);
         GameObject rootCanvas = CreateCanvas("rootMenu", new Vector3(0, 0, 0), size);
         rootCanvas.transform.SetParent(rootObj.transform,false);
         GameObject panel = new GameObject("Panel");
@@ -50,11 +50,11 @@ public class Utility {
         c.renderMode = RenderMode.WorldSpace;
         objCanvas.AddComponent<CanvasScaler>();
         RectTransform NewCanvasRect = objCanvas.GetComponent<RectTransform>();
-        //GvrPointerGraphicRaycaster action = objCanvas.AddComponent<GvrPointerGraphicRaycaster>();
+        GvrPointerGraphicRaycaster action = objCanvas.AddComponent<GvrPointerGraphicRaycaster>();
         //action.enabled = false;
         NewCanvasRect.localPosition = loc;
         NewCanvasRect.sizeDelta = size;
-        NewCanvasRect.localScale = new Vector3(0.014f, 0.014f, 1f);
+        NewCanvasRect.localScale = new Vector3(0.01f, 0.01f, 1f);
         return objCanvas;
     }
 

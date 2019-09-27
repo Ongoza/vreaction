@@ -6,10 +6,11 @@ using TMPro;
 
 public class Main : MonoBehaviour{
     GameObject body;
+    private IEnumerator coroutine;
     public Variables variables;
     public Text TextInput; // user input field
     private string userLang = "English"; // default language
-    public float baseLoc = 2; //  Y location for menus
+    public float baseLoc = 0f; //  Y location for menus
     private float defaultTime = 1f; // time in sec focus on an obj for select
     private float[] trackingTime = new float[] { 30f, 0f }; // [0] time in sec while moving are recording for each action, [1] - current timer
     private int curScene = 0; //  start scene index 
@@ -18,10 +19,9 @@ public class Main : MonoBehaviour{
     private string curfocusType = ""; // current object type in a focus
     private int[] curfocusObjCode = new int[11] {-1,0,0,0,0,0,0,0,0,0,0 }; // a current object descritption in focus
     private float workTime; // timer for user actions
-    private bool  animVR = false; // tr for update if need an animation
     private bool isTimer = false; // display select cursor 
     public int precisionDec = 1000; // number dec after point in head movement control saved action: 1 - 0, 10-0.0, 100 - 0.00, 1000 -0.000
-        public int[,] testsConfig = new int[2,6] { // testsConfig[x,0] - (0-4) type index of an object for search in the first test
+    public int[,] testsConfig = new int[2,6] { // testsConfig[x,0] - (0-4) type index of an object for search in the first test
         { 4, 4, 5, 0, 0, 0 }, // testsConfig[x,1] - (0-7) index of a selected object color
         { 4, 4, 5, 0, 0, 20 }}; // testsConfig[x,2] total number of objects for selection in tests
                                // testsConfig[x,3] total number of right founeded objects in a selection in test
@@ -30,6 +30,7 @@ public class Main : MonoBehaviour{
     public int curTestIndex = 0; //a current test number
     Connection con;
     GameObject testObj;
+    GameObject cube;
     int delay = 30;
 
     Dictionary<string, Transform> bodyParts = new Dictionary<string, Transform>(){
@@ -57,20 +58,27 @@ public class Main : MonoBehaviour{
     
     // Start is called before the first frame update
     void Start(){
-        // animator = GetComponent<Animator>();
+        // baseLoc = 5.5f;
         body = GameObject.Find("bodyEric");
+        // cube = GameObject.Find("Cube-glow");
+        coroutine = CreateCube();
+        StartCoroutine(coroutine);
         variables = new Variables("test");
         string lng = Application.systemLanguage.ToString();
+        // ps.Stop;
+        // ps.main.startDelay = 5.0f;
         // if (TextData.isLanguge(lng)){userLang = lng;}
         // userLang = "Spanish";
         List<string> keyList = new List<string>(bodyParts.Keys);
+        GameObject camTimedPointer = GameObject.Find("GvrReticlePointer");
+        timedPointer = camTimedPointer.GetComponent<Renderer>().material;
         foreach(string key in keyList){ bodyParts[key] = FindChild(body.transform,key);}
         if(bodyParts["upperarm_l"]!= null){
             bodyParts["upperarm_l"].Rotate(0, 0, 90, Space.Self);
             bodyParts["upperarm_r"].Rotate(0, 0, 90, Space.Self);
         }
         // Transform characterHips = animator.GetBoneTransform(HumanBodyBones.Hips); 
-        Debug.Log(bodyParts);
+        Debug.Log(baseLoc);
         doKnuckle(bodyParts["hand_l"]);
         doKnuckle(bodyParts["hand_r"]);
         GameObject msgObj2 = Utility.ShowMessage(TextData.getMessage(userLang, "selAllCol"), "click", TextData.getMessage(userLang, "btnStart"), new Vector2(1200, 200), TextAlignmentOptions.Midline, new Vector2(0, -20), this);
@@ -84,6 +92,12 @@ public class Main : MonoBehaviour{
         //  bodyParts["upperarm_l"].Rotate(0, 1, 0, Space.Self);
         //  bodyParts["upperarm_r"].Rotate(0, 1, 0, Space.Self);
         // }
+        if (isTimer){ // display selecting pointer
+            //Debug.Log("onUpdate main ");
+            workTime -= Time.deltaTime;
+            if (workTime <= 0) { OnClickTimed();
+            }else{ if (timedPointer){ timedPointer.SetFloat("_Angle", (1f - workTime / defaultTime) * 360); } }
+        }
     }
 
     Transform FindChild(Transform aParent, string aName){
@@ -131,15 +145,15 @@ public class Main : MonoBehaviour{
             curfocusObjCode[3] = testsConfig[curTestIndex, 0];
             curfocusObjCode[4] = testsConfig[curTestIndex, 1];            
         }
-        GameObject gm = GameObject.Find(curfocusObj);        
-        if (gm) {
-            curfocusObjCode[5] = Mathf.RoundToInt(gm.transform.position.x * precisionDec);
-            curfocusObjCode[6] = Mathf.RoundToInt(gm.transform.position.y * precisionDec);
-            curfocusObjCode[7] = Mathf.RoundToInt(gm.transform.position.z * precisionDec);
-            curfocusObjCode[8] = Mathf.RoundToInt(gm.transform.eulerAngles.x * precisionDec);
-            curfocusObjCode[9] = Mathf.RoundToInt(gm.transform.eulerAngles.y * precisionDec);
-            curfocusObjCode[10] = Mathf.RoundToInt(gm.transform.eulerAngles.z * precisionDec);
-        }
+        // GameObject gm = GameObject.Find(curfocusObj);        
+        // if (gm) {
+        //     curfocusObjCode[5] = Mathf.RoundToInt(gm.transform.position.x * precisionDec);
+        //     curfocusObjCode[6] = Mathf.RoundToInt(gm.transform.position.y * precisionDec);
+        //     curfocusObjCode[7] = Mathf.RoundToInt(gm.transform.position.z * precisionDec);
+        //     curfocusObjCode[8] = Mathf.RoundToInt(gm.transform.eulerAngles.x * precisionDec);
+        //     curfocusObjCode[9] = Mathf.RoundToInt(gm.transform.eulerAngles.y * precisionDec);
+        //     curfocusObjCode[10] = Mathf.RoundToInt(gm.transform.eulerAngles.z * precisionDec);
+        // }
         //Debug.Log(name+"="+string.Join(";", curfocusObjCode));        
     }
 
@@ -160,6 +174,47 @@ public class Main : MonoBehaviour{
 
     // on the cusror timed click on an active object in a scena
     private void ClickSelectEvent(){
-        isTimer = false; 
+        isTimer = false;       
+        Debug.Log("clickSelectEvent=" + curfocusType + "="+ curfocusObj);
+        switch (curfocusType) {
+            case "click": // start next scena
+                Debug.Log("click="+ curfocusObj);
+                StartCoroutine(Boom(cube));
+                break;
+            default: Debug.Log("clickSelectEvent not found action for " + name); break;
+        }
+        OnExitTimed();
     }
+
+      IEnumerator Boom(GameObject gm){
+        GameObject myInstance = null;
+        StopCoroutine(coroutine);
+        Debug.Log(gm);
+        if(gm){
+            myInstance = Instantiate(Resources.Load("BoomBall")) as GameObject;
+            if(gm){ myInstance.transform.localPosition = gm.transform.position; Destroy(gm);}
+            // ParticleSystem ps = myInstance.GetComponent<ParticleSystem>();
+        }
+        yield return new WaitForSeconds(1);
+        Debug.Log("touch destoy");
+        if(myInstance){Destroy(myInstance);}
+    }
+
+     IEnumerator CreateCube(){
+        cube = Instantiate(Resources.Load("Cube-glow")) as GameObject;
+        cube.transform.position = new Vector3(-6,2,3);
+        Vector3 endPos = new Vector3(6,2,3);
+        float t = 0;
+        while (t <= 0.02f) {
+            // Debug.Log(t);
+            if(cube){
+                t += 0.0001f; // Goes from 0 to 1, incrementing by step each time
+                cube.transform.position = Vector3.Lerp(cube.transform.position, endPos, t); // Move objectToMove closer to b
+                yield return new WaitForFixedUpdate();
+            }
+        }
+        Debug.Log("self destoy");
+        if(cube){ StartCoroutine(Boom(cube)); }
+     }
+    
 }
