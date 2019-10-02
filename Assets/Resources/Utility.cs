@@ -16,7 +16,7 @@ public class Utility {
         //logDebug("ShowMessage");
         Debug.Log(main.baseLoc);
         GameObject rootObj = new GameObject("rootObj");
-        rootObj.transform.position = new Vector3(0,main.baseLoc,4);
+        rootObj.transform.position = new Vector3(0,main.baseLoc,-1);
         GameObject rootCanvas = CreateCanvas("rootMenu", new Vector3(0, 0, 0), size);
         rootCanvas.transform.SetParent(rootObj.transform,false);
         GameObject panel = new GameObject("Panel");
@@ -31,13 +31,13 @@ public class Utility {
         panel.transform.SetParent(rootCanvas.transform, true);
         panelTransform.localScale = new Vector3(1f, 1f, 1f);
         panelTransform.localPosition = new Vector3(0, 40, 0);
-        panelTransform.sizeDelta = size;
-        // Debug.Log(size);
-        //panelTransform.rotation = Quaternion.AngleAxis(-180, Vector3.up);        
+        panelTransform.sizeDelta = size;        // Debug.Log(size);
+        
         CreateText(panelTransform, startLoc, new Vector2(size.x - 150, size.y), msg, 36, 0, anchor, main);
         if (!action.Equals("")) { 
             CreateButton(panelTransform, "Button", actionLabel, action, "0_10_10", new Vector3(0, -40 - size.y / 2, 0), new Vector2(300, 60), main);
         }
+        panelTransform.rotation = Quaternion.AngleAxis(-180, Vector3.up);        
         // showTutorialsMenu(rootMenu);
         return rootObj;
     }

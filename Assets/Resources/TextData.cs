@@ -28,7 +28,8 @@ public class TextData {
     private static readonly Dictionary<string, string> MessagesEn = new Dictionary<string, string>() {
         {"Intro", "<size=80><b>Test: determination of temperament (4 parts)</b></size>"}
         ,{ "gyroWarn", "Your device does not have a gyroscope.\nTry selecting the <Next> button."}
-        ,{"selOneCol", "<b>Choose the most pleasant color</b>"}
+        ,{"leftHandForvard", "Tourh your stright left hand the top of the box"}
+        ,{"rightHandForvard", "Tourh your stright right hand the top of the box"}
         ,{"selAllCol", "<b>Choose one by one the colors you like most</b>"}
         ,{"Gyro", "Sorry \nYour device does not have a gyroscope."} 
         ,{"msgEmail", "<b>Enter your email.</b> \n <size=40> A link to the end of the test will be sent to this address.</size>"}
@@ -77,6 +78,7 @@ public class TextData {
         ,{"btnMore", "More ..."}
         ,{"btnBack", "Return"}
         ,{"btnNext", "Next"}
+        ,{"btn_poseInitReset", "Reset"}
         ,{"btnStart", "Start"}
         ,{"btnLangSw","Change language" }
         ,{"msgLangSw","Select language" }

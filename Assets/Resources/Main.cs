@@ -8,9 +8,10 @@ public class Main : MonoBehaviour{
     GameObject body;
     private IEnumerator coroutine;
     public Variables variables;
+    public string testText = "testextMain";
     public Text TextInput; // user input field
     private string userLang = "English"; // default language
-    public float baseLoc = 0f; //  Y location for menus
+    public float baseLoc = 5.5f; //  Y location for menus
     private float defaultTime = 1f; // time in sec focus on an obj for select
     private float[] trackingTime = new float[] { 30f, 0f }; // [0] time in sec while moving are recording for each action, [1] - current timer
     private int curScene = 0; //  start scene index 
@@ -30,8 +31,12 @@ public class Main : MonoBehaviour{
     public int curTestIndex = 0; //a current test number
     Connection con;
     GameObject testObj;
+    GameObject init_box;
     GameObject cube;
+    GameObject root_text;
     int delay = 30;
+    // "leftHandForvard","rightHandForvard", "leftHandUp", "rightHandUp", "leftHandDown", "rightHandDown"
+    public Dictionary<string, PoseData> listPoses = new Dictionary<string, PoseData>();
 
     Dictionary<string, Transform> bodyParts = new Dictionary<string, Transform>(){
         { "hip", null}
@@ -60,6 +65,11 @@ public class Main : MonoBehaviour{
     void Start(){
         // baseLoc = 5.5f;
         body = GameObject.Find("bodyEric");
+        init_box = GameObject.Find("init_box");
+        Rigidbody rb = init_box.AddComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.mass = 0;
+        init_box.AddComponent<TTriggerEvent>();
         // cube = GameObject.Find("Cube-glow");
         coroutine = CreateCube();
         StartCoroutine(coroutine);
@@ -69,21 +79,39 @@ public class Main : MonoBehaviour{
         // ps.main.startDelay = 5.0f;
         // if (TextData.isLanguge(lng)){userLang = lng;}
         // userLang = "Spanish";
+
+        listPoses["leftHandForvard"] = new PoseData(){ 
+            id = "leftHandForvard"
+            , tex = Resources.Load<Texture2D>("hand_left")
+            , message = TextData.getMessage(userLang, "leftHandForvard")
+            , boxDataPos = new Vector3(1.13f,2.87f,3.25f)};
+        listPoses["rightHandForvard"] = new PoseData(){ 
+            id = "rightHandForvard"
+            , tex = Resources.Load<Texture2D>("hand_right")
+            , message = TextData.getMessage(userLang, "rightHandForvard")
+            , boxDataPos = new Vector3(0.51f,2.87f,3.25f)};
+        // ,["rightHandForvard"]=,
+        // ,["leftHandUp"]=,
+        // ,["rightHandUp"]=,
+        // ,["leftHandDown"]=,
+        // ,["rightHandDown"]=
+
         List<string> keyList = new List<string>(bodyParts.Keys);
         GameObject camTimedPointer = GameObject.Find("GvrReticlePointer");
         timedPointer = camTimedPointer.GetComponent<Renderer>().material;
         foreach(string key in keyList){ bodyParts[key] = FindChild(body.transform,key);}
-        if(bodyParts["upperarm_l"]!= null){
-            bodyParts["upperarm_l"].Rotate(0, 0, 90, Space.Self);
-            bodyParts["upperarm_r"].Rotate(0, 0, 90, Space.Self);
-        }
+        // if(bodyParts["upperarm_l"]!= null){
+        //     bodyParts["upperarm_l"].Rotate(0, 0, 90, Space.Self);
+        //     bodyParts["upperarm_r"].Rotate(0, 0, 90, Space.Self);
+        // }
         // Transform characterHips = animator.GetBoneTransform(HumanBodyBones.Hips); 
         Debug.Log(baseLoc);
-        doKnuckle(bodyParts["hand_l"]);
-        doKnuckle(bodyParts["hand_r"]);
-        GameObject msgObj2 = Utility.ShowMessage(TextData.getMessage(userLang, "selAllCol"), "click", TextData.getMessage(userLang, "btnStart"), new Vector2(1200, 200), TextAlignmentOptions.Midline, new Vector2(0, -20), this);
+        // doKnuckle(bodyParts["hand_l"]);
+        // doKnuckle(bodyParts["hand_r"]);
+        
         // GameObject msgObj2 = Utility.ShowMessage("selAllCol", "", TextData.getMessage(userLang, "btnStart"), new Vector2(1200, 200), TextAlignmentOptions.Midline, new Vector2(0, 20), this);
         // con = new Connection();
+        initPose();
     }
 
     // Update is called once per frame
@@ -216,5 +244,26 @@ public class Main : MonoBehaviour{
         Debug.Log("self destoy");
         if(cube){ StartCoroutine(Boom(cube)); }
      }
+
+    private void initPose(){
+       init_box.transform.position = listPoses["leftHandForvard"].boxDataPos;
+       init_box.GetComponent<Renderer>().material.SetTexture("_MainTex", listPoses["leftHandForvard"].tex);
+    //    root_text = Utility.ShowMessage(TextData.getMessage(userLang, "selAllCol"), "click", TextData.getMessage(userLang, "btnStart"), new Vector2(1200, 200), TextAlignmentOptions.Midline, new Vector2(0, -20), this);
+    root_text = Utility.ShowMessage(listPoses["leftHandForvard"].message, "poseInitReset", TextData.getMessage(userLang, "btn_poseInitReset"), new Vector2(1200, 200), TextAlignmentOptions.Midline, new Vector2(0, -20), this);
+    }
     
+    public void triggerCollision(GameObject gm, string bodyPart){
+        Debug.Log(bodyPart +" touch to "+gm.name);
+    }
+
+}
+
+
+public class PoseData{
+    public string id;
+    public string message;
+    public Texture tex;
+    public Vector3 boxDataPos;
+    public Vector3 boxDataRot;
+    public float[] handData = new float[8];
 }

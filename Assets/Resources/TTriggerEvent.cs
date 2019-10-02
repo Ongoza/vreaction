@@ -2,23 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TriggerEvent : MonoBehaviour
-{
+public class TTriggerEvent : MonoBehaviour{
+    public Main main;
     // Start is called before the first frame update
-    // void Start()
-    // {
-        
-    // }
+    void Start(){ main = Camera.main.GetComponent<Main>();}
 
-    // // Update is called once per frame
-    // void Update()
-    // {
-        
-    // }
-
-    void OnCollisionEnter(Collision collisionInfo){
-            Debug.Log("Detected collision between " + gameObject.name + " and " + collisionInfo.collider.name);
-            Debug.Log("There are " + collisionInfo.contacts.Length + " point(s) of contacts");
-            Debug.Log("Their relative velocity is " + collisionInfo.relativeVelocity);
+    void OnTriggerEnter(Collider cInfo){
+        // Debug.Log("Detected collision between " + gameObject.name + " and " + cInfo.name);
+        main.triggerCollision(gameObject,cInfo.name);
+        // Debug.Log("There are " + cInfo.contacts.Length + " point(s) of contacts");
+        // Debug.Log("Their relative velocity is " + cInfo.relativeVelocity);
         }
 }

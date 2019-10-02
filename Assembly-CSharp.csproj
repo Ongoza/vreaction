@@ -148,7 +148,6 @@
      <Compile Include="Assets\Resources\Connection.cs" />
      <Compile Include="Assets\Resources\Main.cs" />
      <Compile Include="Assets\Resources\TextData.cs" />
-     <Compile Include="Assets\Resources\triggerEvent.cs" />
      <Compile Include="Assets\Resources\TTriggerEvent.cs" />
      <Compile Include="Assets\Resources\Utility.cs" />
      <Compile Include="Assets\Resources\Variables.cs" />
