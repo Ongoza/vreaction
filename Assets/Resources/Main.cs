@@ -6,8 +6,10 @@ using TMPro;
 
 public class Main : MonoBehaviour{
     GameObject body;
+    private Animator animator;
     private IEnumerator coroutine;
     public Variables variables;
+    public Transform Target;
     public string testText = "testextMain";
     public Text TextInput; // user input field
     private string userLang = "English"; // default language
@@ -61,10 +63,13 @@ public class Main : MonoBehaviour{
         ,{ "foot_r", null}
     };
     
+    
     // Start is called before the first frame update
     void Start(){
         // baseLoc = 5.5f;
         body = GameObject.Find("bodyEric");
+        // animator = body.GetComponent<Animator>();
+        // animator.SetIKPosition(AvatarIKGoal.LeftFoot, new Vector3(0.1f,0.1f,0.1f));
         init_box = GameObject.Find("init_box");
         Rigidbody rb = init_box.AddComponent<Rigidbody>();
         rb.useGravity = false;
@@ -95,23 +100,37 @@ public class Main : MonoBehaviour{
         // ,["rightHandUp"]=,
         // ,["leftHandDown"]=,
         // ,["rightHandDown"]=
-
         List<string> keyList = new List<string>(bodyParts.Keys);
         GameObject camTimedPointer = GameObject.Find("GvrReticlePointer");
         timedPointer = camTimedPointer.GetComponent<Renderer>().material;
-        foreach(string key in keyList){ bodyParts[key] = FindChild(body.transform,key);}
+        // foreach(string key in keyList){ bodyParts[key] = FindChild(body.transform,key);}
         // if(bodyParts["upperarm_l"]!= null){
         //     bodyParts["upperarm_l"].Rotate(0, 0, 90, Space.Self);
         //     bodyParts["upperarm_r"].Rotate(0, 0, 90, Space.Self);
         // }
+        // Debug.Log(body.transform.RightHand);
+        
+        animator = body.GetComponent<Animator>();
+        // Transform arm = animator.GetBoneTransform(HumanBodyBones.LeftUpperArm);
+        // Debug.Log(arm);
+        // arm.LookAt(init_box.transform.position);
+        // Vector3 Offset = new Vector3(0,90,90);
+        // arm.rotation = arm.rotation * Quaternion.Euler(Offset);
+        // obj.Rotate(0,0,90);
+        // Quaternion handRotation = Quaternion.LookRotation(objToAimAt.position - new Vector3(0,0,90));
+        // animator.SetIKRotationWeight(animator.AvatarIKGoal.RightHand, 1.0f);
+        // animator.SetIKRotation(animator.AvatarIKGoal.RightHand, handRotation);
+
+         StartCoroutine(animationBodyPart(animator.GetBoneTransform(HumanBodyBones.LeftUpperArm), new Vector3(0,0,90)));
         // Transform characterHips = animator.GetBoneTransform(HumanBodyBones.Hips); 
         Debug.Log(baseLoc);
         // doKnuckle(bodyParts["hand_l"]);
         // doKnuckle(bodyParts["hand_r"]);
         
         // GameObject msgObj2 = Utility.ShowMessage("selAllCol", "", TextData.getMessage(userLang, "btnStart"), new Vector2(1200, 200), TextAlignmentOptions.Midline, new Vector2(0, 20), this);
-        // con = new Connection();
-        initPose();
+        con = new Connection();
+        // initPose();
+        // drawLines();
     }
 
     // Update is called once per frame
@@ -119,6 +138,10 @@ public class Main : MonoBehaviour{
         // if(bodyParts["upperarm_l"]!= null){
         //  bodyParts["upperarm_l"].Rotate(0, 1, 0, Space.Self);
         //  bodyParts["upperarm_r"].Rotate(0, 1, 0, Space.Self);
+        // }
+        // if(trSpeeedMesure){
+        //      float movementPerFrame = Vector3.Distance (PreviousFramePosition, transform.position) ;
+        //  Speed = movementPerFrame / Time.deltaTime;
         // }
         if (isTimer){ // display selecting pointer
             //Debug.Log("onUpdate main ");
@@ -252,10 +275,67 @@ public class Main : MonoBehaviour{
     root_text = Utility.ShowMessage(listPoses["leftHandForvard"].message, "poseInitReset", TextData.getMessage(userLang, "btn_poseInitReset"), new Vector2(1200, 200), TextAlignmentOptions.Midline, new Vector2(0, -20), this);
     }
     
-    public void triggerCollision(GameObject gm, string bodyPart){
-        Debug.Log(bodyPart +" touch to "+gm.name);
+    // public void triggerCollision(Collider cInfo){
+    //     Debug.Log(cInfo.gameObject.name+" touch to "+cInfo.name);
+    // }
+    public void triggerCollision(string[] names){
+    //    Debug.Log(cInfo.gameObject.name+" 2touch to "+cInfo.name+" "+cInfo.ToString()+" ");
+    Debug.Log(names[1]+" touch to "+names[0]);
     }
 
+    IEnumerator animationBodyPart(Transform pos, Vector3 endAngles){
+        Vector3 startAngles = pos.localEulerAngles;
+        float currCountdownValue = 100f;
+        // Transform transform = part.transform;
+        float steps = 100;
+        float stepX = (endAngles.x -startAngles.x)/steps;
+        float stepY = (endAngles.y -startAngles.y)/steps;
+        float stepZ = (endAngles.z -startAngles.z)/steps;
+        Quaternion step = Quaternion.Euler(1,0,1);
+        Debug.Log("coron = "+steps+", "+startAngles+", "+ endAngles);
+        while (steps > 0){
+            // pos.localRotation = step;
+            // pos.Rotate(step.x, step.y, step.z, Space.Self);
+            // pos.rotation = pos.rotation * step;
+            pos.Rotate(0,0,stepZ,Space.Self);
+            pos.Rotate(1,0,0,Space.Self);
+            steps--;
+            yield return null;
+        }
+    }
+    void OnAnimatorIK(int layerIndex){
+        // if (enabledIK){
+            animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1.0f);
+            animator.SetIKRotation(AvatarIKGoal.RightHand, init_box.transform.rotation);
+ 
+            animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1.0f);
+            animator.SetIKPosition(AvatarIKGoal.RightHand, init_box.transform.position);
+        // }else{
+        //     animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 0.0f);
+        //     animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 0.0f);
+        // }
+    // void onAnimatorIK(){
+    //     // animator.SetIKRotationWeight(init_box.transform,1f);
+    //     animator.SetIKPositionWeight(AvatarIKGoal.LeftHand,1f);
+    //     animator.SetIKPosition(AvatarIKGoal.LeftHand,init_box.transform.position);
+    //     // animator.SetIKRotation();
+    }
+    private void drawLines(){
+        // Gizmos.DrawCube(transform.position, new Vector3(2, 1, 1));
+        Vector3[] positions = new Vector3[]{
+            new Vector3(0,0,0)
+            ,new Vector3(1,0,0)
+            ,new Vector3(1,1,0)
+            ,new Vector3(1,2,0)
+            ,new Vector3(1,2,1)
+        };
+    // Gizmos.DrawLine(positions[0],positions[1]);
+        // Handles.DrawPolyLine(positions);
+    }
+    void OnApplicationQuit()
+    {
+        con.closeConnection();
+    }
 }
 
 
